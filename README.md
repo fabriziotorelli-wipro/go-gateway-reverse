@@ -4,7 +4,7 @@ Go-Lang Simple Gateway Reverse Proxy
 
 ## Goals
 
-Define a simple reverse proxy enabled by reference label and triggering single or load-balanced (simple) gateway to configured services.
+Define a simple reverse proxy enabled by reference label and triggering single or load-balanced (simple balancing strategy) gateway to configured services.
 
 
 ## Architecture
