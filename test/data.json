@@ -1,0 +1,38 @@
+[
+  {
+    "site" : "Site1",
+    "address" : "mysite1.org",
+    "port" : 8080,
+    "protocol": "http",
+    "scheme" : "http",
+    "type" : "json",
+    "override": false,
+    "apiuri": "/v2",
+    "concatenatepath": false,
+    "concatenatebeforeapi": false
+  },
+  {
+    "site" : "Site2",
+    "address" : "mysite2.org",
+    "port" : 8081,
+    "protocol": "http",
+    "scheme" : "http",
+    "type" : "json",
+    "override": false,
+    "apiuri": "/v2",
+    "concatenatepath": false,
+    "concatenatebeforeapi": false
+  },
+  {
+    "site" : "Site3",
+    "address" : "mysite3.org",
+    "port" : 8082,
+    "protocol": "http",
+    "scheme" : "http",
+    "type" : "json",
+    "override": true,
+    "apiuri": "/v2",
+    "concatenatepath": true,
+    "concatenatebeforeapi": true
+  }
+]

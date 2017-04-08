@@ -9,6 +9,6 @@
     "override": false,
     "apiuri": "",
     "concatenatepath": false,
-    "cocnatenatebeforeapi": false
+    "concatenatebeforeapi": false
   }
 ]

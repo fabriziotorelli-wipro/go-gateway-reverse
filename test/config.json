@@ -1,0 +1,24 @@
+[
+  {
+    "ipaddress": "",
+    "port":10099,
+    "apiurl": "/api/json?pretty=true",
+    "concatenate": true,
+    "beforeapi": true,
+    "servicefile": "./data/data.json",
+    "protocol": "http",
+    "user": "",
+    "password": ""
+  },
+  {
+    "ipaddress": "",
+    "port":10100,
+    "apiurl": "/api/json?pretty=true",
+    "concatenate": true,
+    "beforeapi": true,
+    "servicefile": "./data/data2.json",
+    "protocol": "http",
+    "user": "",
+    "password": ""
+  }
+]

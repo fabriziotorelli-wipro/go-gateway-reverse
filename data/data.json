@@ -9,7 +9,7 @@
     "override": false,
     "apiuri": "",
     "concatenatepath": false,
-    "cocnatenatebeforeapi": false
+    "concatenatebeforeapi": false
   },
   {
     "site" : "Jenkins2",
@@ -20,6 +20,6 @@
     "type" : "json",
     "apiuri": "",
     "concatenatepath": false,
-    "cocnatenatebeforeapi": false
+    "concatenatebeforeapi": false
   }
 ]

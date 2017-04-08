@@ -29,7 +29,7 @@ type Site struct {
 	APIUri    string `json:"apiuri"`
 	Protocol  string `json:"protocol"`
 	Concat    bool   `json:"concatenatepath"`
-	BeforeApi bool   `json:"cocnatenatebeforeapi"`
+	BeforeApi bool   `json:"concatenatebeforeapi"`
 }
 
 type IndexSite struct {
