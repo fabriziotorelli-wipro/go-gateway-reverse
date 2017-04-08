@@ -1,46 +1,44 @@
 package service
 
 import (
-	"net/http/httputil"
-	"net/http"
+	"bytes"
 	"gateway/model"
 	"html"
-	"strings"
 	"log"
-	"bytes"
-	"strconv"
-	"net/url"
 	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 )
 
-func FilterSites(lookup string, sites []model.Site, f func(string, model.Site) bool) ([]model.Response) {
+func FilterSites(lookup string, sites []model.Site, f func(string, model.Site) bool) []model.Response {
 	vsf := make([]model.Response, 0)
 	for _, v := range sites {
 		if f(lookup, v) {
 			res := model.Response{
-				Name: v.Name,
-				Type: v.Type,
+				Name:    v.Name,
+				Type:    v.Type,
 				SiteObj: v,
 			}
 			vsf = append(vsf, res)
 		}
 	}
 	return vsf
-	
+
 }
 
-func FilterSingleSite(text string, site model.Site) (bool) {
-	if text=="" {
+func FilterSingleSite(text string, site model.Site) bool {
+	if text == "" {
 		return true
 	} else {
 		//return strings.Index(strings.ToLower(site.Name), strings.ToLower(text)) >= 0
 		return strings.ToLower(site.Name) == strings.ToLower(text)
 	}
-	
+
 }
-
-
 
 func BalancerDiscovery(urlPath string, config *model.Configuration, sites []model.Site, registryMap map[string]model.Balancer) (*model.Balancer, string) {
 	Balancer := new(model.Balancer)
@@ -63,10 +61,10 @@ func BalancerDiscovery(urlPath string, config *model.Configuration, sites []mode
 			log.Println("Filtering Root and Caching")
 			filteredSites := FilterSites(text, sites, FilterSingleSite)
 			Balancer := model.Balancer{
-				Valid: true,
-				Enabled: true,
-				Sites: filteredSites,
-				Diff: -1,
+				Valid:     true,
+				Enabled:   true,
+				Sites:     filteredSites,
+				Diff:      -1,
 				QueryText: "__root__",
 			}
 			registryMap["__root__"] = Balancer
@@ -87,10 +85,10 @@ func BalancerDiscovery(urlPath string, config *model.Configuration, sites []mode
 				Balancer = &val
 			} else {
 				Balancer := model.Balancer{
-					Valid: false,
-					Enabled: false,
-					Sites: filteredSites,
-					Diff: 0,
+					Valid:     false,
+					Enabled:   false,
+					Sites:     filteredSites,
+					Diff:      0,
 					QueryText: "",
 				}
 				registryMap["__invlid__"] = Balancer
@@ -98,20 +96,20 @@ func BalancerDiscovery(urlPath string, config *model.Configuration, sites []mode
 		} else if len(filteredSites) == 1 {
 			log.Println("One proxy found ...")
 			Balancer := model.Balancer{
-				Valid: true,
-				Enabled: false,
-				Sites: filteredSites,
-				Diff: -1,
+				Valid:     true,
+				Enabled:   false,
+				Sites:     filteredSites,
+				Diff:      -1,
 				QueryText: text,
 			}
 			registryMap[text] = Balancer
 		} else {
 			log.Println("More proxies found ...")
 			Balancer := model.Balancer{
-				Valid: true,
-				Enabled: true,
-				Sites: filteredSites,
-				Diff: -1,
+				Valid:     true,
+				Enabled:   true,
+				Sites:     filteredSites,
+				Diff:      -1,
 				QueryText: text,
 			}
 			registryMap[text] = Balancer
@@ -191,7 +189,7 @@ func BalancerDiscovery(urlPath string, config *model.Configuration, sites []mode
 //
 //}
 
-func nextBalancedSite(Balancer *model.Balancer) (model.Site) {
+func nextBalancedSite(Balancer *model.Balancer) model.Site {
 	if Balancer.Enabled && Balancer.Valid {
 		// Balanced and Valid
 		Balancer.Diff++
@@ -200,7 +198,7 @@ func nextBalancedSite(Balancer *model.Balancer) (model.Site) {
 	} else if Balancer.Valid {
 		// No Balanced Valid
 		return Balancer.Sites[0].SiteObj
-	}  else {
+	} else {
 		// Invalid Balancer
 		site := model.Site{Name: "__invalid__"}
 		return site
@@ -220,10 +218,10 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 		Balancer, newPath := BalancerDiscovery(html.EscapeString(req.URL.Path), config, sites, registryMap)
 		if Balancer.QueryText == "__root__" {
 			log.Println("Root requested ...")
-			
+
 			if indexConfig.Enabled {
 				log.Println("Try an active index service ...")
-				buffer := bytes.NewBufferString("");
+				buffer := bytes.NewBufferString("")
 				buffer.WriteString(indexConfig.ServiceAddress)
 				if indexConfig.Port > 0 {
 					buffer.WriteString(":")
@@ -255,7 +253,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 			} else {
 				log.Println("At least one proxy found ...")
 				if len(newPath) > 0 && newPath[len(newPath)-1:] == "/" {
-					newPath = newPath[0:len(newPath)-1]
+					newPath = newPath[0 : len(newPath)-1]
 				}
 				log.Printf("New Path [%s]", newPath)
 				// Concatenate Api to Path without checking values [Configure Site Responsible!!] ...
@@ -294,7 +292,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 				}
 				// Upstreaming to the server site ...
 				req.URL.Path = Path
-				if (site.Override) {
+				if site.Override {
 					if len(site.Scheme) > 0 {
 						req.URL.Scheme = site.Scheme
 					}
@@ -303,7 +301,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 						req.URL.Scheme = site.Scheme
 					}
 				}
-				buffer := bytes.NewBufferString("");
+				buffer := bytes.NewBufferString("")
 				buffer.WriteString(site.Address)
 				if site.Port > 0 {
 					buffer.WriteString(":")

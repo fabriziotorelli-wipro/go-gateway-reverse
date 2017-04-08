@@ -1,10 +1,10 @@
 package model
 
 import (
-"encoding/json"
-"os"
-	"log"
+	"encoding/json"
 	"errors"
+	"log"
+	"os"
 )
 
 const defaultConfigFile = "data/config.json"
@@ -30,7 +30,7 @@ func RetrieveConfig(fileName string) ([]Configuration, error) {
 	// to Feed values.
 	var config []Configuration
 	err = json.NewDecoder(file).Decode(&config)
-	
+
 	if err == nil {
 		if len(config) == 0 {
 			return nil, errors.New("Please provide at least one configuration ...")
@@ -40,4 +40,3 @@ func RetrieveConfig(fileName string) ([]Configuration, error) {
 	// We don't need to check for errors, the caller can do this.
 	return config, err
 }
-

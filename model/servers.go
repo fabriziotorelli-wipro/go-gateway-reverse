@@ -1,12 +1,11 @@
 package model
 
 import (
-"encoding/json"
-"os"
+	"encoding/json"
+	"os"
 )
 
 const dataFile = "data/data.json"
-
 
 // RetrieveSites reads and unmarshals the sites data file.
 func RetrieveSites(fileName string) ([]Site, error) {
@@ -14,7 +13,7 @@ func RetrieveSites(fileName string) ([]Site, error) {
 	if configFile == "" {
 		configFile = dataFile
 	}
-	
+
 	// Open the file.
 	file, err := os.Open(configFile)
 	if err != nil {
@@ -33,4 +32,3 @@ func RetrieveSites(fileName string) ([]Site, error) {
 	// We don't need to check for errors, the caller can do this.
 	return servers, err
 }
-

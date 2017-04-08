@@ -1,14 +1,13 @@
 package service
 
 import (
+	"bytes"
+	"gateway/model"
 	"log"
 	"net/http"
-	"gateway/model"
-	"bytes"
 	"strconv"
 	"sync"
 )
-
 
 //func FilterSites(lookup string, sites []model.Site, f func(string, model.Site) bool) ([]model.Response) {
 //	vsf := make([]model.Response, 0)
@@ -115,8 +114,8 @@ func RestServer(config model.Configuration, sites []model.Site, waitGroup *sync.
 	//http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	//	handleGatewayRequest(w, html.EscapeString(r.URL.Path), config, sites)
 	//})
-	
-	buffer := bytes.NewBufferString("");
+
+	buffer := bytes.NewBufferString("")
 	buffer.WriteString(config.Address)
 	buffer.WriteString(":")
 	buffer.WriteString(strconv.FormatInt(config.Port, 10))
@@ -133,8 +132,8 @@ func RestServer(config model.Configuration, sites []model.Site, waitGroup *sync.
 	//	MaxHeaderBytes: 1 << 20,
 	//}
 	reverseProxy := HostRewriteReverseProxy(sites, &config, procIndex, indexConfig)
-//	log.Fatal(server.ListenAndServe(), reverseProxy)
+	//	log.Fatal(server.ListenAndServe(), reverseProxy)
 	log.Fatal(http.ListenAndServe(listenAddress, reverseProxy))
 	waitGroup.Done()
-	
+
 }

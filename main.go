@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
-	"os"
 	"gateway/model"
 	"gateway/service"
+	"log"
+	"os"
 	"sync"
 )
 
@@ -14,20 +14,20 @@ func init() {
 
 func GateWay(file string, indexFile string) {
 	log.Println("Starting Gateway ...")
-	
+
 	indexConfig, error := model.RetrieveIndex(indexFile)
-	
+
 	if error != nil {
 		log.Fatal(error)
 	}
-	
+
 	configs, error0 := model.RetrieveConfig(file)
 	if error0 != nil {
 		log.Fatal(error0)
 	}
 	var waitGroup sync.WaitGroup
 	if indexConfig.Enabled {
-		waitGroup.Add(len(configs)+1)
+		waitGroup.Add(len(configs) + 1)
 	} else {
 		waitGroup.Add(len(configs))
 	}
@@ -49,7 +49,7 @@ func GateWay(file string, indexFile string) {
 		}
 		log.Println("List of Sites")
 		for _, site := range sites {
-			log.Printf("[%s]: [%s:%d] (type: [%s])",site.Name, site.Address, site.Port, site.Type)
+			log.Printf("[%s]: [%s:%d] (type: [%s])", site.Name, site.Address, site.Port, site.Type)
 		}
 		go func(config model.Configuration, sites []model.Site, procIndex int, indexConfig model.IndexSite) {
 			service.RestServer(config, sites, &waitGroup, procIndex, indexConfig)
@@ -61,7 +61,7 @@ func GateWay(file string, indexFile string) {
 			service.IndexServer(indexConfig, file, &waitGroup)
 		}(indexConfig, file)
 	}
-	
+
 	waitGroup.Wait()
 }
 

@@ -1,29 +1,28 @@
 package service
 
 import (
-	"log"
-	"net/http"
-	"gateway/model"
 	"bytes"
-	"strconv"
-	"sync"
-	"html"
-	"strings"
 	"encoding/json"
 	"fmt"
+	"gateway/model"
+	"html"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
-
-func FilterIndexSites(sites []model.Site) ([]model.Response) {
+func FilterIndexSites(sites []model.Site) []model.Response {
 	vsf := make([]model.Response, 0)
 	for _, v := range sites {
 		res := model.Response{
-			Name: v.Name,
-			Type: v.Type,
+			Name:    v.Name,
+			Type:    v.Type,
 			SiteObj: v,
 		}
-			vsf = append(vsf, res)
+		vsf = append(vsf, res)
 	}
 	return vsf
 
@@ -33,12 +32,13 @@ func handleGatewayRequest(w http.ResponseWriter, sites []model.Site) {
 	filteredSites := FilterIndexSites(sites)
 	if len(filteredSites) == 0 {
 		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", 404, "Not Found")
-	} else  {
+	} else {
 		json.NewEncoder(w).Encode(filteredSites)
 	}
 
 }
-type ServerRestHandler struct{
+
+type ServerRestHandler struct {
 	file string
 }
 
@@ -79,13 +79,13 @@ func (h ServerRestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func IndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGroup) {
-	buffer := bytes.NewBufferString("");
+	buffer := bytes.NewBufferString("")
 	buffer.WriteString(config.Address)
 	buffer.WriteString(":")
 	buffer.WriteString(strconv.FormatInt(config.Port, 10))
 	listenAddress := buffer.String()
 	log.Println("GateWay Index Port - Listen address : " + listenAddress)
-	myHandler := new (ServerRestHandler)
+	myHandler := new(ServerRestHandler)
 	myHandler.file = fileName
 	server := &http.Server{
 		Addr:           listenAddress,
@@ -96,5 +96,5 @@ func IndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGr
 	}
 	log.Fatal(server.ListenAndServe())
 	waitGroup.Done()
-	
+
 }
