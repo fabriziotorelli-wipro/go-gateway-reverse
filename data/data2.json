@@ -1,0 +1,14 @@
+[
+  {
+    "site" : "Jenkins1",
+    "address" : "10.10.243.50",
+    "port" : 8080,
+    "protocol": "http",
+    "scheme" : "http",
+    "type" : "json",
+    "override": false,
+    "apiuri": "",
+    "concatenatepath": false,
+    "cocnatenatebeforeapi": false
+  }
+]
