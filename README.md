@@ -1,4 +1,4 @@
-# go-gateway-proxy
+# go-gateway-reverse
 
 Go-Lang Simple Gateway Reverse Proxy
 
