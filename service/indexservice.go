@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"os"
 )
 
 func FilterIndexSites(sites []model.Site) []model.Response {
@@ -44,38 +45,47 @@ type ServerRestHandler struct {
 
 func (h ServerRestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	urlTokens := strings.Split(html.EscapeString(r.URL.Path), "/")
-	value, err := strconv.Atoi(urlTokens[1])
-	log.Printf("Required Process : [%d]", value)
-	if err != nil {
-		log.Println("Process Nil Not Found")
-		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		return
+	if urlTokens[1] == "shutdown" {
+		log.Println("System exit in process ...")
+		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusOK, "GateWay poweroff in progress...")
+		go func () {
+			time.Sleep(2500 * time.Millisecond)
+			log.Println("GateWay exit according to API request ...")
+			os.Exit(0)
+		}()
+	} else {
+		value, err := strconv.Atoi(urlTokens[1])
+		log.Printf("Required Process : [%d]", value)
+		if err != nil {
+			fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		} else {
+			log.Printf("Recovery whole configs service Process [%d]", value)
+			configs, error0 := model.RetrieveConfig(h.file)
+			if error0 != nil {
+				log.Printf("Process [%d] Error On RetrieveConfig", value)
+				fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+			} else {
+				log.Println("Configurations: ")
+				log.Println(configs)
+				log.Printf("Validate Process Id Range [%d]", value)
+				if len(configs) <= value {
+					log.Printf("Process [%d] Not Found", value)
+					fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
+				} else {
+					log.Printf("Recovery of data for Process [%d]", value)
+					sites, error1 := model.RetrieveSites(configs[value].File)
+					if error1 != nil {
+						log.Printf("Process [%d] Error On RetrieveSites", value)
+						fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+					} else {
+						log.Printf("Recovered of data for Process [%d] : [%d]", value, len(sites))
+						log.Printf("Trying Process [%d]", value)
+						handleGatewayRequest(w, sites)
+					}
+				}
+			}
+		}
 	}
-	log.Printf("Recovery whole configs service Process [%d]", value)
-	configs, error0 := model.RetrieveConfig(h.file)
-	if error0 != nil {
-		log.Printf("Process [%d] Error On RetrieveConfig", value)
-		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
-		return
-	}
-	log.Println("Configurations: ")
-	log.Println(configs)
-	log.Printf("Validate Process Id Range [%d]", value)
-	if len(configs) <= value {
-		log.Printf("Process [%d] Not Found", value)
-		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		return
-	}
-	log.Printf("Recovery of data for Process [%d]", value)
-	sites, error1 := model.RetrieveSites(configs[value].File)
-	if error1 != nil {
-		log.Printf("Process [%d] Error On RetrieveSites", value)
-		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
-		return
-	}
-	log.Printf("Recovered of data for Process [%d] : [%d]", value, len(sites))
-	log.Printf("Trying Process [%d]", value)
-	handleGatewayRequest(w, sites)
 }
 
 func IndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGroup) {
