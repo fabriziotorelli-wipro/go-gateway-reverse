@@ -8,7 +8,9 @@
     "servicefile": "./data/data.json",
     "protocol": "http",
     "user": "",
-    "password": ""
+    "password": "",
+    "usetokenprotection": false,
+    "securitytoken": ""
   },
   {
     "ipaddress": "",
@@ -19,6 +21,8 @@
     "servicefile": "./data/data2.json",
     "protocol": "http",
     "user": "",
-    "password": ""
+    "password": "",
+    "usetokenprotection": true,
+    "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4"
   }
 ]

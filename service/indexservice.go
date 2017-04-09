@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"gateway/model"
@@ -26,7 +25,7 @@ func FilterIndexSites(sites []model.Site) []model.Response {
 		vsf = append(vsf, res)
 	}
 	return vsf
-
+	
 }
 
 func handleGatewayRequest(w http.ResponseWriter, sites []model.Site) {
@@ -36,67 +35,76 @@ func handleGatewayRequest(w http.ResponseWriter, sites []model.Site) {
 	} else {
 		json.NewEncoder(w).Encode(filteredSites)
 	}
-
+	
 }
 
 type ServerRestHandler struct {
-	file string
+	file  string
+	token string
 }
 
 func (h ServerRestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	urlTokens := strings.Split(html.EscapeString(r.URL.Path), "/")
-	if urlTokens[1] == "shutdown" {
-		log.Println("System exit in process ...")
-		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusOK, "GateWay poweroff in progress...")
-		go func () {
-			time.Sleep(2500 * time.Millisecond)
-			log.Println("GateWay exit according to API request ...")
-			os.Exit(0)
-		}()
-	} else {
-		value, err := strconv.Atoi(urlTokens[1])
-		log.Printf("Required Process : [%d]", value)
-		if err != nil {
-			fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
+	XToken := r.Header.Get("X-GATEWAY-TOKEN")
+	if h.token == XToken {
+		urlTokens := strings.Split(html.EscapeString(r.URL.Path), "/")
+		if urlTokens[1] == "shutdown" {
+			log.Println("Gateway shutdown in process ...")
+			fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusOK, "GateWay poweroff in progress...")
+			go func() {
+				time.Sleep(2500 * time.Millisecond)
+				log.Println("GateWay exit according to API request ...")
+				os.Exit(0)
+			}()
+		} else if urlTokens[1] == "error" {
+			log.Println("Gateway error shuffling in process ...")
+			w.Header().Add("code", r.URL.Query().Get("code"))
+			w.Header().Add("message", r.URL.Query().Get("message"))
+			fmt.Fprintf(w, "{\"code\": %s, \"message\":\"%s\"}", r.URL.Query().Get("code"), r.URL.Query().Get("message"))
 		} else {
-			log.Printf("Recovery whole configs service Process [%d]", value)
-			configs, error0 := model.RetrieveConfig(h.file)
-			if error0 != nil {
-				log.Printf("Process [%d] Error On RetrieveConfig", value)
-				fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+			value, err := strconv.Atoi(urlTokens[1])
+			log.Printf("Required Process : [%d]", value)
+			if err != nil {
+				fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
 			} else {
-				log.Println("Configurations: ")
-				log.Println(configs)
-				log.Printf("Validate Process Id Range [%d]", value)
-				if len(configs) <= value {
-					log.Printf("Process [%d] Not Found", value)
-					fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
+				log.Printf("Recovery whole configs service Process [%d]", value)
+				configs, error0 := model.RetrieveConfig(h.file)
+				if error0 != nil {
+					log.Printf("Process [%d] Error On RetrieveConfig", value)
+					fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 				} else {
-					log.Printf("Recovery of data for Process [%d]", value)
-					sites, error1 := model.RetrieveSites(configs[value].File)
-					if error1 != nil {
-						log.Printf("Process [%d] Error On RetrieveSites", value)
-						fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+					log.Println("Configurations: ")
+					log.Println(configs)
+					log.Printf("Validate Process Id Range [%d]", value)
+					if len(configs) <= value {
+						log.Printf("Process [%d] Not Found", value)
+						fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusNotFound, http.StatusText(http.StatusNotFound))
 					} else {
-						log.Printf("Recovered of data for Process [%d] : [%d]", value, len(sites))
-						log.Printf("Trying Process [%d]", value)
-						handleGatewayRequest(w, sites)
+						log.Printf("Recovery of data for Process [%d]", value)
+						sites, error1 := model.RetrieveSites(configs[value].File)
+						if error1 != nil {
+							log.Printf("Process [%d] Error On RetrieveSites", value)
+							fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+						} else {
+							log.Printf("Recovered of data for Process [%d] : [%d]", value, len(sites))
+							log.Printf("Trying Process [%d]", value)
+							handleGatewayRequest(w, sites)
+						}
 					}
 				}
 			}
 		}
+	} else {
+		log.Println("Process request not authorized")
+		fmt.Fprintf(w, "{\"code\": %d, \"message\":\"%s\"}", http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 	}
 }
 
 func IndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGroup) {
-	buffer := bytes.NewBufferString("")
-	buffer.WriteString(config.Address)
-	buffer.WriteString(":")
-	buffer.WriteString(strconv.FormatInt(config.Port, 10))
-	listenAddress := buffer.String()
+	listenAddress := fmt.Sprintf("%s:%d", config.Address, config.Port)
 	log.Println("GateWay Index Port - Listen address : " + listenAddress)
 	myHandler := new(ServerRestHandler)
 	myHandler.file = fileName
+	myHandler.token = config.SecurityToken
 	server := &http.Server{
 		Addr:           listenAddress,
 		Handler:        myHandler,
@@ -106,5 +114,5 @@ func IndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGr
 	}
 	log.Fatal(server.ListenAndServe())
 	waitGroup.Done()
-
+	
 }

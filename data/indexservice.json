@@ -3,5 +3,6 @@
   "ipaddress": "",
   "serviceaddress": "localhost",
   "port": 10098,
-  "protocol": "http"
+  "protocol": "http",
+  "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4"
 }

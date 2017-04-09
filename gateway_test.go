@@ -65,6 +65,7 @@ func TestIndexServiceConfig(t *testing.T) {
 	assert.Equal(t, int64(10098), index.Port)
 	assert.Equal(t, "http", index.Protocol)
 	assert.Equal(t, "localhost", index.ServiceAddress)
+	assert.Equal(t, "J1qK1c18UUGJFAzz9xnH56584l4", index.SecurityToken)
 }
 
 func TestLoadPorts(t *testing.T) {
@@ -80,6 +81,8 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, "./data/data.json", ports[0].File)
 	assert.Equal(t, "", ports[0].User)
 	assert.Equal(t, "", ports[0].Password)
+	assert.Equal(t, false, ports[0].UseToken)
+	assert.Equal(t, "", ports[0].SecurityToken)
 	assert.Equal(t, "/api/json?pretty=true", ports[0].APIUrl)
 	assert.Equal(t, true, ports[0].Concat)
 	assert.Equal(t, true, ports[0].BeforeApi)
@@ -89,6 +92,8 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, "./data/data2.json", ports[1].File)
 	assert.Equal(t, "", ports[1].User)
 	assert.Equal(t, "", ports[1].Password)
+	assert.Equal(t, true, ports[1].UseToken)
+	assert.Equal(t, "J1qK1c18UUGJFAzz9xnH56584l4", ports[1].SecurityToken)
 	assert.Equal(t, "/api/json?pretty=true", ports[1].APIUrl)
 	assert.Equal(t, true, ports[1].Concat)
 	assert.Equal(t, true, ports[1].BeforeApi)

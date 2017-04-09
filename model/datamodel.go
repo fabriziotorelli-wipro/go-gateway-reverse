@@ -1,5 +1,10 @@
 package model
 
+type HttpResponse struct {
+	Code    int   `json:"code"`
+	Message string `json:"message"`
+}
+
 type Result struct {
 	Process string `json:"name"`
 	Content string `json:"content"`
@@ -38,6 +43,7 @@ type IndexSite struct {
 	ServiceAddress string `json:"serviceaddress"`
 	Port           int64  `json:"port"`
 	Protocol       string `json:"protocol"`
+	SecurityToken  string `json:"securitytoken"`
 }
 
 type Configuration struct {
@@ -50,6 +56,8 @@ type Configuration struct {
 	Protocol  string `json:"protocol"`
 	User      string `json:"user"`
 	Password  string `json:"password"`
+	UseToken  bool   `json:"usetokenprotection"`
+	SecurityToken  string `json:"securitytoken"`
 }
 
 type Response struct {
