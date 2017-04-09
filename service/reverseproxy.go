@@ -186,20 +186,25 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 				site := nextBalancedSite(Balancer)
 				if site.Name == "__invalid__" {
 					log.Println("No proxy found ...")
-					req.Response.Status = http.StatusText(http.StatusNotFound)
-					req.Response.StatusCode = http.StatusNotFound
-					buffer := bytes.NewBufferString("")
-					buffer.WriteString(indexConfig.ServiceAddress)
-					if indexConfig.Port > 0 {
-						buffer.WriteString(":")
-						buffer.WriteString(strconv.FormatInt(indexConfig.Port, 10))
+					if indexConfig.Enabled {
+						buffer := bytes.NewBufferString("")
+						buffer.WriteString(indexConfig.ServiceAddress)
+						if indexConfig.Port > 0 {
+							buffer.WriteString(":")
+							buffer.WriteString(strconv.FormatInt(indexConfig.Port, 10))
+						}
+						req.URL.Host = buffer.String()
+						req.URL.Scheme = indexConfig.Protocol
+						req.URL.Path = "/error?code="+strconv.Itoa(http.StatusNotFound)+"&message="+http.StatusText(http.StatusNotFound)
+						req.Header.Add("X-GATEWAY-TOKEN", indexConfig.SecurityToken)
+						log.Print("Rewriting URL : ")
+						log.Println(req.URL)
+					} else {
+						req.Response.Status = http.StatusText(http.StatusNotFound)
+						req.Response.StatusCode = http.StatusNotFound
+						req.Body.Close()
+						req.Response.Close = true
 					}
-					req.URL.Host = buffer.String()
-					req.URL.Scheme = indexConfig.Protocol
-					req.URL.Path = "/error"
-					req.Header.Add("X-GATEWAY-TOKEN", indexConfig.SecurityToken)
-					log.Print("Rewriting URL : ")
-					log.Println(req.URL)
 				} else {
 					log.Println("At least one proxy found ...")
 					if len(newPath) > 0 && newPath[len(newPath)-1:] == "/" {
@@ -263,7 +268,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 					log.Println(req.URL)
 				}
 			}
-		} else {
+		} else if indexConfig.Enabled {
 			log.Printf("Gateway Port %d request not authorized", config.Port)
 			buffer := bytes.NewBufferString("")
 			buffer.WriteString(indexConfig.ServiceAddress)
@@ -277,6 +282,11 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 			req.Header.Add("X-GATEWAY-TOKEN", indexConfig.SecurityToken)
 			log.Print("Rewriting URL : ")
 			log.Println(req.URL)
+		} else {
+			req.Response.Status = http.StatusText(http.StatusUnauthorized)
+			req.Response.StatusCode = http.StatusUnauthorized
+			req.Body.Close()
+			req.Response.Close = true
 		}
 			
 	}
