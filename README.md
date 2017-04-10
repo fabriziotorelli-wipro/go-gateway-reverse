@@ -7,6 +7,12 @@ Go-Lang Simple Gateway Reverse Proxy
 Define a simple reverse proxy enabled by reference label and triggering single or load-balanced (simple balancing strategy) gateway to configured services.
 
 
+## Pre-requisites
+
+To compile and run this project you have to check availability of following software:
+* [Go](https://golang.org/dl/) (tested with version 1.8)
+* Any program (curl, wget) or Browser plugin (REST Easy, etc..) to test token http calls in HEAD space 
+
 ## Architecture
 
 Reverse Proxy, acquiring an URL defined as :
@@ -161,7 +167,6 @@ Go in you `GOPATH\src` folder and type :
 
 Project GO package folder name is `gateway`.
 
-
 ## Build
 
 It's present a make file that returns an help on the call :
@@ -186,7 +191,21 @@ Alternatively you can call following commands :
  * `go test` to run unit and integration test on the project
  * `go run main.go` to execute the project
  * `go build --buildmode exe .` to create an executable command
+
  
+## Further test 
+
+You can access information on GateWay Token protected ports using following command :
+
+* POST:
+```
+curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X POST http://<HOST>:<PORT>/<MASKED-SERVICE> -H Content-Type: application/json -d ''
+```
+
+* GET:
+```
+curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X GET http://<HOST>:<PORT>/<MASKED-SERVICE>
+```
 
 ## Execution
 
