@@ -55,8 +55,8 @@ func StartGateWay(gateway *GateWayModel) {
 		go func(config model.Configuration, sites []model.Site, procIndex int, indexConfig model.IndexSite, gateway *GateWayModel) {
 			server, err := service.GateWayPortServer(config, sites, &waitGroup, procIndex, indexConfig)
 			gateway.Processes = append(gateway.Processes, WebProcess{
-				serverError: err,
-				serverRef: server,
+				ServerError: err,
+				ServerRef: server,
 			})
 		}(config, sites, counter, indexConfig, gateway)
 		counter++
@@ -65,8 +65,8 @@ func StartGateWay(gateway *GateWayModel) {
 		go func(indexConfig model.IndexSite, file string, gateway *GateWayModel) {
 			server, err := service.GateWayIndexServer(indexConfig, file, &waitGroup)
 			gateway.IndexProcess = WebProcess{
-				serverError: err,
-				serverRef: server,
+				ServerError: err,
+				ServerRef: server,
 			}
 		}(indexConfig, file, gateway)
 	}
@@ -83,20 +83,20 @@ func (gateway *GateWayModel) Start() {
 		if len(gateway.Processes) == 0 {
 			StartGateWay(gateway)
 		} else {
-			if gateway.IndexProcess.serverRef != nil {
+			if gateway.IndexProcess.ServerRef != nil {
 				gateway.WaitGroup.Add(len(gateway.Processes) + 1)
 			} else {
 				gateway.WaitGroup.Add(len(gateway.Processes))
 			}
 			for _, val := range gateway.Processes {
 				go func() {
-					val.serverError = val.serverRef.ListenAndServe()
+					val.ServerError = val.ServerRef.ListenAndServe()
 					gateway.WaitGroup.Done()
 				}()
 			}
-			if gateway.IndexProcess.serverRef != nil {
+			if gateway.IndexProcess.ServerRef != nil {
 				go func() {
-					gateway.IndexProcess.serverError = gateway.IndexProcess.serverRef.ListenAndServe()
+					gateway.IndexProcess.ServerError = gateway.IndexProcess.ServerRef.ListenAndServe()
 					gateway.WaitGroup.Done()
 				}()
 			} else {
@@ -111,16 +111,16 @@ func (gateway *GateWayModel) Start() {
 func (gateway *GateWayModel) Stop() {
 	if gateway.Status {
 		for index, val := range gateway.Processes {
-			if val.serverError == nil {
-				val.serverRef.Close()
+			if val.ServerError == nil {
+				val.ServerRef.Close()
 				gateway.WaitGroup.Done()
 			} else {
 				log.Printf("Gateway Port [%d] not started ...", index)
 			}
 		}
-		if gateway.IndexProcess.serverRef != nil {
-			if gateway.IndexProcess.serverError == nil {
-				gateway.IndexProcess.serverRef.Close()
+		if gateway.IndexProcess.ServerRef != nil {
+			if gateway.IndexProcess.ServerError == nil {
+				gateway.IndexProcess.ServerRef.Close()
 				gateway.WaitGroup.Done()
 			} else {
 				log.Println("Gateway Index not started ...")

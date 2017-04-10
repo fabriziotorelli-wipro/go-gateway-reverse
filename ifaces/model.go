@@ -6,8 +6,8 @@ import (
 )
 
 type WebProcess struct {
-	serverError error
-	serverRef   *http.Server
+	ServerError error
+	ServerRef   *http.Server
 }
 
 type GateWayModel struct {

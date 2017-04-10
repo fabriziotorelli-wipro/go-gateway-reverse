@@ -1,9 +1,9 @@
 package main
 
 import (
-	"io/ioutil"
-	"math/rand"
-	"os"
+	//"io/ioutil"
+	//"math/rand"
+	//"os"
 	"testing"
 	"time"
 
@@ -23,12 +23,23 @@ var (
 		Processes: []ifaces.WebProcess{},
 		IndexProcess: ifaces.WebProcess{},
 	}
+	server *http.Server
+	err    error
 )
+
+func TestInit(t *testing.T) {
+	gateway.Start()
+	for _, proc :=  range gateway.Processes {
+		assert.Nil(t, proc.ServerError, "Gateway port should start without errors")
+	}
+	assert.Nil(t, gateway.IndexProcess.ServerError, "Gateway index should start without errors")
+	server, err = test.GateWayTestServer("", 10111)
+	assert.Nil(t, err, "Test Service should start")
+}
+
 
 func TestLoadSites(t *testing.T) {
 	testSiteFile := "./test/data.json"
-	//my_data := getFileAsString("data.xml")
-
 	sites, err := model.RetrieveSites(testSiteFile)
 	assert.Nil(t, err)
 	assert.NotNil(t, sites)
@@ -110,63 +121,65 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, true, ports[1].BeforeApi)
 }
 
-func TestGatewayServiceStartUp(t *testing.T) {
-	server, err := test.GateWayTestServer("", 10111)
-	assert.Nil(t, err, "Test Service should start")
-	time.Sleep(2 * time.Second)
-	gateway.Start()
-	time.Sleep(5 * time.Second)
+func TestGatewayServicePort(t *testing.T) {
 	resp, error1 := http.Get("http://localhost:10099/Site1")
 	assert.Nil(t, error1, "Test Service should be reachable")
 	var respData test.ServerTestHandler
 	err = json.NewDecoder(resp.Body).Decode(&respData)
-	defer  func () {
-		resp.Body.Close()
-		server.Close()
-		gateway.Stop()
-	}()
+	resp.Body.Close()
 	assert.Nil(t, err, "Error should be nil")
 	assert.Equal(t, 200, respData.Code)
 	assert.Equal(t, "Test service answer", respData.Message)
-	//go func() {
-	//	time.Sleep(5000 * time.Millisecond)
-	//	log.Println("Stopping Gateway ...")
-	//	gateway.Stop()
-	//	log.Println("Gateway stopped ...")
-	//	time.Sleep(5000 * time.Millisecond)
-	//	log.Println("Starting Gateway ...")
-	//	gateway.Start()
-	//	log.Println("Gateway started ...")
-	//	//gateway.Wait()
-	//}()
-	
 }
 
-func getFileAsString(path string) string {
-	buf, err := ioutil.ReadFile("_tests/" + path)
-	if err != nil {
-		panic(err)
-	}
-
-	return string(buf)
+func TestGatewayServiceIndex(t *testing.T) {
+	gateway.Start()
+	time.Sleep(5 * time.Second)
+	resp, error1 := http.Get("http://localhost:10099/")
+	assert.Nil(t, error1, "Test Service should be reachable")
+	var respData []model.Response
+	err := json.NewDecoder(resp.Body).Decode(&respData)
+	assert.Nil(t, err, "Error should be nil")
+	assert.Equal(t, 3, len(respData))
+	assert.Equal(t, "Site1", respData[0].Name)
+	assert.Equal(t, "json", respData[0].Type)
+	assert.Equal(t, "Site2", respData[1].Name)
+	assert.Equal(t, "json", respData[1].Type)
+	assert.Equal(t, "Site3", respData[2].Name)
+	assert.Equal(t, "json", respData[2].Type)
 }
 
-func getRandomString(n int) string {
-	rand.Seed(time.Now().UnixNano())
-	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
+func TestEnd(t *testing.T) {
+	server.Close()
+	gateway.Stop()
 }
 
-func getFileReader(file string) *os.File {
-	r, err := os.Open(file)
-	if err != nil {
-		panic(err)
-	}
-	return r
-}
+
+//func getFileAsString(path string) string {
+//	buf, err := ioutil.ReadFile("_tests/" + path)
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	return string(buf)
+//}
+
+//func getRandomString(n int) string {
+//	rand.Seed(time.Now().UnixNano())
+//	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+//
+//	b := make([]rune, n)
+//	for i := range b {
+//		b[i] = letters[rand.Intn(len(letters))]
+//	}
+//	return string(b)
+//}
+
+//func getFileReader(file string) *os.File {
+//	r, err := os.Open(file)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return r
+//}
 
