@@ -29,7 +29,7 @@ This allows to retain the original verb and method, challenging a channel to the
 The single GateWay Port Server manages identifiers that mask the access to the real service and open streaming channels
 to the target server/port as required in the original call :
 
-<p align="center"><img width="640" height="480" src="/images/arch2.png" /></p>
+<p align="center"><img width="640" height="280" src="/images/arch2.png" /></p>
 
 ## Configuration
 
