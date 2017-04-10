@@ -9,10 +9,21 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gateway/model"
+	"gateway/ifaces"
+	"gateway/test"
+	"net/http"
+	"encoding/json"
 )
 
-//var (
-//)
+var (
+	gateway = ifaces.GateWayModel{
+		ConfigFile: "./test/config.json",
+		IndexFile: "./test/indexservice.json",
+		Status: false,
+		Processes: []ifaces.WebProcess{},
+		IndexProcess: ifaces.WebProcess{},
+	}
+)
 
 func TestLoadSites(t *testing.T) {
 	testSiteFile := "./test/data.json"
@@ -23,13 +34,13 @@ func TestLoadSites(t *testing.T) {
 	assert.NotNil(t, sites)
 	assert.Equal(t, 3, len(sites))
 	assert.Equal(t, "Site1", sites[0].Name)
-	assert.Equal(t, "mysite1.org", sites[0].Address)
-	assert.Equal(t, 8080, sites[0].Port)
+	assert.Equal(t, "localhost", sites[0].Address)
+	assert.Equal(t, 10111, sites[0].Port)
 	assert.Equal(t, "http", sites[0].Protocol)
 	assert.Equal(t, "http", sites[0].Scheme)
 	assert.Equal(t, "json", sites[0].Type)
 	assert.Equal(t, false, sites[0].Override)
-	assert.Equal(t, "/v2", sites[0].APIUri)
+	assert.Equal(t, "/", sites[0].APIUri)
 	assert.Equal(t, false, sites[0].Concat)
 	assert.Equal(t, false, sites[0].BeforeApi)
 	assert.Equal(t, "Site2", sites[1].Name)
@@ -78,27 +89,58 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, "", ports[0].Address)
 	assert.Equal(t, int64(10099), ports[0].Port)
 	assert.Equal(t, "http", ports[0].Protocol)
-	assert.Equal(t, "./data/data.json", ports[0].File)
+	assert.Equal(t, "./test/data.json", ports[0].File)
 	assert.Equal(t, "", ports[0].User)
 	assert.Equal(t, "", ports[0].Password)
 	assert.Equal(t, false, ports[0].UseToken)
 	assert.Equal(t, "", ports[0].SecurityToken)
-	assert.Equal(t, "/api/json?pretty=true", ports[0].APIUrl)
+	assert.Equal(t, "/", ports[0].APIUrl)
 	assert.Equal(t, true, ports[0].Concat)
 	assert.Equal(t, true, ports[0].BeforeApi)
 	assert.Equal(t, "", ports[1].Address)
 	assert.Equal(t, int64(10100), ports[1].Port)
 	assert.Equal(t, "http", ports[1].Protocol)
-	assert.Equal(t, "./data/data2.json", ports[1].File)
+	assert.Equal(t, "./test/data2.json", ports[1].File)
 	assert.Equal(t, "", ports[1].User)
 	assert.Equal(t, "", ports[1].Password)
 	assert.Equal(t, true, ports[1].UseToken)
 	assert.Equal(t, "J1qK1c18UUGJFAzz9xnH56584l4", ports[1].SecurityToken)
-	assert.Equal(t, "/api/json?pretty=true", ports[1].APIUrl)
+	assert.Equal(t, "/", ports[1].APIUrl)
 	assert.Equal(t, true, ports[1].Concat)
 	assert.Equal(t, true, ports[1].BeforeApi)
 }
 
+func TestGatewayServiceStartUp(t *testing.T) {
+	server, err := test.GateWayTestServer("", 10111)
+	assert.Nil(t, err, "Test Service should start")
+	time.Sleep(2 * time.Second)
+	gateway.Start()
+	time.Sleep(5 * time.Second)
+	resp, error1 := http.Get("http://localhost:10099/Site1")
+	assert.Nil(t, error1, "Test Service should be reachable")
+	var respData test.ServerTestHandler
+	err = json.NewDecoder(resp.Body).Decode(&respData)
+	defer  func () {
+		resp.Body.Close()
+		server.Close()
+		gateway.Stop()
+	}()
+	assert.Nil(t, err, "Error should be nil")
+	assert.Equal(t, 200, respData.Code)
+	assert.Equal(t, "Test service answer", respData.Message)
+	//go func() {
+	//	time.Sleep(5000 * time.Millisecond)
+	//	log.Println("Stopping Gateway ...")
+	//	gateway.Stop()
+	//	log.Println("Gateway stopped ...")
+	//	time.Sleep(5000 * time.Millisecond)
+	//	log.Println("Starting Gateway ...")
+	//	gateway.Start()
+	//	log.Println("Gateway started ...")
+	//	//gateway.Wait()
+	//}()
+	
+}
 
 func getFileAsString(path string) string {
 	buf, err := ioutil.ReadFile("_tests/" + path)

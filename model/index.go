@@ -13,6 +13,7 @@ func RetrieveIndex(fileName string) (IndexSite, error) {
 	if configFile == "" {
 		configFile = indexDataFile
 	}
+	println("Index: " + configFile)
 	indexServer := IndexSite{}
 	// Open the file.
 	file, err := os.Open(configFile)

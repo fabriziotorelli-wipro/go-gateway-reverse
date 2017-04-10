@@ -99,20 +99,29 @@ func (h ServerRestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func IndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGroup) {
+func GateWayIndexServer(config model.IndexSite, fileName string, waitGroup *sync.WaitGroup) (*http.Server, error) {
 	listenAddress := fmt.Sprintf("%s:%d", config.Address, config.Port)
 	log.Println("GateWay Index Port - Listen address : " + listenAddress)
 	myHandler := new(ServerRestHandler)
 	myHandler.file = fileName
 	myHandler.token = config.SecurityToken
-	server := &http.Server{
+	var err error
+	var server *http.Server
+	server = &http.Server{
 		Addr:           listenAddress,
 		Handler:        myHandler,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Fatal(server.ListenAndServe())
-	waitGroup.Done()
+	//err := server.ListenAndServe()
+	//log.Fatal(err)
+	//waitGroup.Done()
+	go func(server *http.Server, waitGroup *sync.WaitGroup) {
+		err = server.ListenAndServe()
+		log.Fatal(err)
+		//waitGroup.Done()
+	}(server, waitGroup)
 	
+	return server, err
 }
