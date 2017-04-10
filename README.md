@@ -31,7 +31,7 @@ to the target server/port as required in the original call :
 
 <p align="center"><img width="640" height="480" src="/images/arch2.png" /></p>
 
-According to Secure Configuration we have following communication :
+According to Secure Configuration we have following communication steps :
 
 <p align="center"><img width="640" height="480" src="/images/arch3.png" /></p>
 
