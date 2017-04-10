@@ -68,7 +68,10 @@ Example :
   "serviceaddress": "localhost",
   "port": 10098,
   "protocol": "http",
-  "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4"
+  "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4",
+  "usetls": true,
+  "tlsx509certificatefile": "./data/server.pem",
+  "tlsx509certificatekeyfile": "./data/server.key"
 }
 ```
 
