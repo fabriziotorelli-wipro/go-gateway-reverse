@@ -24,6 +24,12 @@ or
 
 This allows to retain the original verb and method, challenging a channel to the real service with the service specified policies
 
+<p align="center"><img width="640" height="480" src="/images/arch1.png" /></p>
+
+The single GateWay Port Server manages identifiers that mask the access to the real service and open streaming channels
+to the target server/port as required in the original call :
+
+<p align="center"><img width="640" height="480" src="/images/arch2.png" /></p>
 
 ## Configuration
 
