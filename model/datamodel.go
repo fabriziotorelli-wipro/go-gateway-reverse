@@ -1,7 +1,7 @@
 package model
 
 type HttpResponse struct {
-	Code    int   `json:"code"`
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
@@ -37,27 +37,34 @@ type Site struct {
 	BeforeApi bool   `json:"concatenatebeforeapi"`
 }
 
-type IndexSite struct {
+type IndexConfig struct {
 	Enabled        bool   `json:"enabled"`
 	Address        string `json:"address"`
 	ServiceAddress string `json:"serviceaddress"`
 	Port           int64  `json:"port"`
 	Protocol       string `json:"protocol"`
+	UseToken       bool   `json:"usetokenprotection"`
 	SecurityToken  string `json:"securitytoken"`
+	UseTLS         bool   `json:"usetls"`
+	X509CertFile   string `json:"tlsx509certificatefile"`
+	X509KeyFile    string `json:"tlsx509certificatekeyfile"`
 }
 
 type Configuration struct {
-	Address   string `json:"ipaddress"`
-	Port      int64  `json:"port"`
-	APIUrl    string `json:"apiurl"`
-	Concat    bool   `json:"concatenate"`
-	BeforeApi bool   `json:"beforeapi"`
-	File      string `json:"servicefile"`
-	Protocol  string `json:"protocol"`
-	User      string `json:"user"`
-	Password  string `json:"password"`
-	UseToken  bool   `json:"usetokenprotection"`
-	SecurityToken  string `json:"securitytoken"`
+	Address       string `json:"ipaddress"`
+	Port          int64  `json:"port"`
+	APIUrl        string `json:"apiurl"`
+	Concat        bool   `json:"concatenate"`
+	BeforeApi     bool   `json:"beforeapi"`
+	File          string `json:"servicefile"`
+	Protocol      string `json:"protocol"`
+	User          string `json:"user"`
+	Password      string `json:"password"`
+	UseToken      bool   `json:"usetokenprotection"`
+	SecurityToken string `json:"securitytoken"`
+	UseTLS        bool   `json:"usetls"`
+	X509CertFile  string `json:"tlsx509certificatefile"`
+	X509KeyFile   string `json:"tlsx509certificatekeyfile"`
 }
 
 type Response struct {

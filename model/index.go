@@ -8,13 +8,13 @@ import (
 const indexDataFile = "data/indexservice.json"
 
 // RetrieveIndex reads and unmarshals the index data file.
-func RetrieveIndex(fileName string) (IndexSite, error) {
+func RetrieveIndex(fileName string) (IndexConfig, error) {
 	configFile := fileName
 	if configFile == "" {
 		configFile = indexDataFile
 	}
 	println("Index: " + configFile)
-	indexServer := IndexSite{}
+	indexServer := IndexConfig{}
 	// Open the file.
 	file, err := os.Open(configFile)
 	if err != nil {

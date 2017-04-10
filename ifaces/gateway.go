@@ -5,4 +5,3 @@ type GateWay interface {
 	Stop()
 	Wait()
 }
-

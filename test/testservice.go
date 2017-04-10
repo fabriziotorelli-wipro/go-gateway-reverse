@@ -9,8 +9,8 @@ import (
 )
 
 type ServerTestHandler struct {
-	Code    int     `json:"code"`
-	Message string  `json:"message"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (h *ServerTestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +37,6 @@ func GateWayTestServer(address string, port int) (*http.Server, error) {
 		err = server.ListenAndServe()
 		log.Fatal(err)
 	}(server)
-	
+
 	return server, err
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"gateway/ifaces"
 	"log"
 	"os"
-	"gateway/ifaces"
 )
 
 func init() {
@@ -49,13 +49,13 @@ func init() {
 //		for _, site := range sites {
 //			log.Printf("[%s]: [%s:%d] (type: [%s])", site.Name, site.Address, site.Port, site.Type)
 //		}
-//		go func(config model.Configuration, sites []model.Site, procIndex int, indexConfig model.IndexSite) {
+//		go func(config model.Configuration, sites []model.Site, procIndex int, indexConfig model.IndexConfig) {
 //			service.RestServer(config, sites, &waitGroup, procIndex, indexConfig)
 //		}(config, sites, counter, indexConfig)
 //		counter++
 //	}
 //	if indexConfig.Enabled {
-//		go func(indexConfig model.IndexSite, file string) {
+//		go func(indexConfig model.IndexConfig, file string) {
 //			service.IndexServer(indexConfig, file, &waitGroup)
 //		}(indexConfig, file)
 //	}
@@ -65,10 +65,10 @@ func init() {
 
 func CreateGateway(configFile string, indexFile string) ifaces.GateWay {
 	gateway := ifaces.GateWayModel{
-		ConfigFile: configFile,
-		IndexFile: indexFile,
-		Status: false,
-		Processes: []ifaces.WebProcess{},
+		ConfigFile:   configFile,
+		IndexFile:    indexFile,
+		Status:       false,
+		Processes:    []ifaces.WebProcess{},
 		IndexProcess: ifaces.WebProcess{},
 	}
 	return &gateway
@@ -86,5 +86,5 @@ func main() {
 	gateway := CreateGateway(file, indexFile)
 	gateway.Start()
 	gateway.Wait()
-	
+
 }

@@ -1,12 +1,11 @@
 package ifaces
 
 import (
-	"log"
 	"gateway/model"
-	"sync"
 	"gateway/service"
+	"log"
+	"sync"
 )
-
 
 func StartGateWay(gateway *GateWayModel) {
 	file := gateway.ConfigFile
@@ -14,13 +13,13 @@ func StartGateWay(gateway *GateWayModel) {
 	log.Println("Starting Gateway ...")
 	log.Printf("Config file : [%s]", file)
 	log.Printf("Index file : [%s]", indexFile)
-	
+
 	indexConfig, error := model.RetrieveIndex(indexFile)
-	
+
 	if error != nil {
 		log.Fatal(error)
 	}
-	
+
 	configs, error0 := model.RetrieveConfig(file)
 	if error0 != nil {
 		log.Fatal(error0)
@@ -32,7 +31,7 @@ func StartGateWay(gateway *GateWayModel) {
 		waitGroup.Add(len(configs))
 	}
 	gateway.WaitGroup = &waitGroup
-	
+
 	counter := 0
 	for _, config := range configs {
 		log.Printf("Server Configuration #%d ", counter)
@@ -52,34 +51,34 @@ func StartGateWay(gateway *GateWayModel) {
 		for _, site := range sites {
 			log.Printf("[%s]: [%s:%d] (type: [%s])", site.Name, site.Address, site.Port, site.Type)
 		}
-		go func(config model.Configuration, sites []model.Site, procIndex int, indexConfig model.IndexSite, gateway *GateWayModel) {
+		go func(config model.Configuration, sites []model.Site, procIndex int, indexConfig model.IndexConfig, gateway *GateWayModel) {
 			server, err := service.GateWayPortServer(config, sites, &waitGroup, procIndex, indexConfig)
 			gateway.Processes = append(gateway.Processes, WebProcess{
 				ServerError: err,
-				ServerRef: server,
+				ServerRef:   server,
 			})
 		}(config, sites, counter, indexConfig, gateway)
 		counter++
 	}
 	if indexConfig.Enabled {
-		go func(indexConfig model.IndexSite, file string, gateway *GateWayModel) {
+		go func(indexConfig model.IndexConfig, file string, gateway *GateWayModel) {
 			server, err := service.GateWayIndexServer(indexConfig, file, &waitGroup)
 			gateway.IndexProcess = WebProcess{
 				ServerError: err,
-				ServerRef: server,
+				ServerRef:   server,
 			}
 		}(indexConfig, file, gateway)
 	}
-	gateway.Status=true
+	gateway.Status = true
 }
 
 func (gateway *GateWayModel) Wait() {
 	gateway.WaitGroup.Wait()
-	gateway.Status=false
+	gateway.Status = false
 }
 
 func (gateway *GateWayModel) Start() {
-	if ! gateway.Status {
+	if !gateway.Status {
 		if len(gateway.Processes) == 0 {
 			StartGateWay(gateway)
 		} else {

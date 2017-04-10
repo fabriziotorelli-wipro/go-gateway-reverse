@@ -151,7 +151,7 @@ func nextBalancedSite(Balancer *model.Balancer) model.Site {
 // registered proxies in LoadBalancing for multiple addressing of the label, the root list or
 // a 404 Error if the required proxy doesn't exists or is empty). No content check is performed on the
 // base attributes required : Address, Port[optional], Scheme, API[Optional], overwrite[Optional], etc...
-func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, procIndex int, indexConfig model.IndexSite, useToken bool, securityToken string) *httputil.ReverseProxy {
+func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, procIndex int, indexConfig model.IndexConfig, useToken bool, securityToken string) *httputil.ReverseProxy {
 	registryMap := make(map[string]model.Balancer)
 	director := func(req *http.Request) {
 		XToken := req.Header.Get("X-GATEWAY-TOKEN")
@@ -159,7 +159,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 			Balancer, newPath := BalancerDiscovery(html.EscapeString(req.URL.Path), config, sites, registryMap)
 			if Balancer.QueryText == "__root__" {
 				log.Println("Root requested ...")
-				
+
 				if indexConfig.Enabled {
 					log.Println("Try an active index service ...")
 					buffer := bytes.NewBufferString("")
@@ -195,7 +195,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 						}
 						req.URL.Host = buffer.String()
 						req.URL.Scheme = indexConfig.Protocol
-						req.URL.Path = "/error?code="+strconv.Itoa(http.StatusNotFound)+"&message="+http.StatusText(http.StatusNotFound)
+						req.URL.Path = "/error?code=" + strconv.Itoa(http.StatusNotFound) + "&message=" + http.StatusText(http.StatusNotFound)
 						req.Header.Add("X-GATEWAY-TOKEN", indexConfig.SecurityToken)
 						log.Print("Rewriting URL : ")
 						log.Println(req.URL)
@@ -278,7 +278,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 			}
 			req.URL.Host = buffer.String()
 			req.URL.Scheme = indexConfig.Protocol
-			req.URL.Path = "/error?code="+strconv.Itoa(http.StatusUnauthorized)+"&message="+http.StatusText(http.StatusUnauthorized)
+			req.URL.Path = "/error?code=" + strconv.Itoa(http.StatusUnauthorized) + "&message=" + http.StatusText(http.StatusUnauthorized)
 			req.Header.Add("X-GATEWAY-TOKEN", indexConfig.SecurityToken)
 			log.Print("Rewriting URL : ")
 			log.Println(req.URL)
@@ -288,7 +288,7 @@ func HostRewriteReverseProxy(sites []model.Site, config *model.Configuration, pr
 			req.Body.Close()
 			req.Response.Close = true
 		}
-			
+
 	}
 	return &httputil.ReverseProxy{
 		Director: director,

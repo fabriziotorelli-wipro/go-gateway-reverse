@@ -18,4 +18,3 @@ type GateWayModel struct {
 	IndexProcess WebProcess
 	WaitGroup    *sync.WaitGroup
 }
-

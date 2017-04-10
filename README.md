@@ -54,7 +54,11 @@ Configuration descriptor (`indexservice.json`) :
 * "serviceaddress": Address where GateWay Ports should recover information or "localhost"
 * "port": Port Number used by Index Server (integer)
 * "protocol": Protocol used for connecting the Index Server by GateWay Ports
+* "usetokenprotection": Flag defining the user to check in the request HEADs the `X-GATEWAY-TOKEN` tag
 * "securitytoken": Security Token recovered in Head Tag `X-GATEWAY-TOKEN`
+* "usetls": Enable/Disable SSL/TLS configuration for the GateWay Index Server
+* "tlsx509certificatefile": X509 Certificate full qualified file path
+* "tlsx509certificatekeyfile": Certificate Server Key full qualified file path
 
 Example :
 ```
@@ -84,6 +88,9 @@ Configuration descriptor for any of the ports (`config.json`) :
 * "password": Authentication User Password / Token (not yet implemented)
 * "usetokenprotection": Flag defining the user to check in the request HEADs the `X-GATEWAY-TOKEN` tag
 * "securitytoken": Security Token recovered in Head Tag `X-GATEWAY-TOKEN`
+* "usetls": Enable/Disable SSL/TLS configuration for the GateWay Port Server
+* "tlsx509certificatefile": X509 Certificate full qualified file path
+* "tlsx509certificatekeyfile": Certificate Server Key full qualified file path
 
 Example :
 ```
@@ -99,7 +106,11 @@ Example :
     "user": "",
     "password": "",
     "usetokenprotection": false,
-    "securitytoken": ""
+    "securitytoken": "",
+    "usetls": false,
+    "tlsx509certificatefile": "",
+    "tlsx509certificatekeyfile": ""
+
 
   },
   {
@@ -113,7 +124,10 @@ Example :
     "user": "",
     "password": "",
     "usetokenprotection": true,
-    "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4"
+    "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4",
+    "usetls": false,
+    "tlsx509certificatefile": "",
+    "tlsx509certificatekeyfile": ""
   }
 ]
 ```
@@ -213,6 +227,33 @@ curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X POST 
 * GET:
 ```
 curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X GET http://<HOST>:<PORT>/<MASKED-SERVICE>
+```
+
+## TLS Cerificate test
+
+##### Generate private key (.key)
+
+```sh
+# Key considerations for algorithm "RSA" ≥ 2048-bit
+openssl genrsa -out server.key 2048
+    
+# Key considerations for algorithm "ECDSA" ≥ secp384r1
+# List ECDSA the supported curves (openssl ecparam -list_curves)
+openssl ecparam -genkey -name secp384r1 -out server.key
+```
+
+##### Generation of self-signed(x509) public key (PEM-encodings `.pem`|`.crt`) based on the private (`.key`)
+
+```sh
+openssl req -new -x509 -sha256 -key server.key -out server.pem -days 3650
+```
+
+Now you can assign enable TLS mode for the server, using X509 SSL Certificate and Server Key, configuring the relative information on the PORT, then you can call the SSL channel.
+
+Here one example of call :
+
+```sh
+curl -k https://<gw-port-address>:<gw-port-number>/ -v –key /path/to/server.key –cert /path/to/server.key https://<gw-port-address>:<gw-port-number>/<gw-port-end-point>
 ```
 
 ## Execution

@@ -7,20 +7,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"gateway/model"
-	"gateway/ifaces"
-	"gateway/test"
-	"net/http"
 	"encoding/json"
+	"gateway/ifaces"
+	"gateway/model"
+	"gateway/test"
+	"github.com/stretchr/testify/assert"
+	"net/http"
 )
 
 var (
 	gateway = ifaces.GateWayModel{
-		ConfigFile: "./test/config.json",
-		IndexFile: "./test/indexservice.json",
-		Status: false,
-		Processes: []ifaces.WebProcess{},
+		ConfigFile:   "./test/config.json",
+		IndexFile:    "./test/indexservice.json",
+		Status:       false,
+		Processes:    []ifaces.WebProcess{},
 		IndexProcess: ifaces.WebProcess{},
 	}
 	server *http.Server
@@ -29,14 +29,13 @@ var (
 
 func TestInit(t *testing.T) {
 	gateway.Start()
-	for _, proc :=  range gateway.Processes {
+	for _, proc := range gateway.Processes {
 		assert.Nil(t, proc.ServerError, "Gateway port should start without errors")
 	}
 	assert.Nil(t, gateway.IndexProcess.ServerError, "Gateway index should start without errors")
 	server, err = test.GateWayTestServer("", 10111)
 	assert.Nil(t, err, "Test Service should start")
 }
-
 
 func TestLoadSites(t *testing.T) {
 	testSiteFile := "./test/data.json"
@@ -78,7 +77,7 @@ func TestLoadSites(t *testing.T) {
 
 func TestIndexServiceConfig(t *testing.T) {
 	testIndexFile := "./test/indexservice.json"
-	
+
 	index, err := model.RetrieveIndex(testIndexFile)
 	assert.Nil(t, err)
 	assert.NotNil(t, index)
@@ -92,7 +91,7 @@ func TestIndexServiceConfig(t *testing.T) {
 
 func TestLoadPorts(t *testing.T) {
 	testPortFile := "./test/config.json"
-	
+
 	ports, err := model.RetrieveConfig(testPortFile)
 	assert.Nil(t, err)
 	assert.NotNil(t, ports)
@@ -154,7 +153,6 @@ func TestEnd(t *testing.T) {
 	gateway.Stop()
 }
 
-
 //func getFileAsString(path string) string {
 //	buf, err := ioutil.ReadFile("_tests/" + path)
 //	if err != nil {
@@ -182,4 +180,3 @@ func TestEnd(t *testing.T) {
 //	}
 //	return r
 //}
-

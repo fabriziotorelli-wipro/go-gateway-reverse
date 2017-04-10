@@ -1,17 +1,16 @@
 package service
 
 import (
+	"fmt"
 	"gateway/model"
 	"log"
 	"net/http"
 	"sync"
-	"fmt"
 	"time"
 )
 
+func GateWayPortServer(config model.Configuration, sites []model.Site, waitGroup *sync.WaitGroup, procIndex int, indexConfig model.IndexConfig) (*http.Server, error) {
 
-func GateWayPortServer(config model.Configuration, sites []model.Site, waitGroup *sync.WaitGroup, procIndex int, indexConfig model.IndexSite)  (*http.Server, error) {
-	
 	listenAddress := fmt.Sprintf("%s:%d", config.Address, config.Port)
 	log.Println("GateWay Port - Listen address : " + listenAddress)
 	reverseProxy := HostRewriteReverseProxy(sites, &config, procIndex, indexConfig, config.UseToken, config.SecurityToken)
@@ -24,14 +23,14 @@ func GateWayPortServer(config model.Configuration, sites []model.Site, waitGroup
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	
-	//log.Fatal(http.ListenAndServe(listenAddress, reverseProxy))
-	//waitGroup.Done()
-	go func(server *http.Server, waitGroup *sync.WaitGroup) {
-		err = server.ListenAndServe()
+	go func(server *http.Server, config model.Configuration, waitGroup *sync.WaitGroup) {
+		if config.UseTLS {
+			err = server.ListenAndServeTLS(config.X509CertFile, config.X509KeyFile)
+		} else {
+			err = server.ListenAndServe()
+		}
 		log.Fatal(err)
-		//waitGroup.Done()
-	}(server, waitGroup)
+	}(server, config, waitGroup)
 	return server, err
 
 }
