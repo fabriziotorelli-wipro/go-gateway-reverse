@@ -35,10 +35,12 @@ Availale Configurations are :
 ## Index Server
 
 Server Index file configure a service JSON http server that expose following end-point
-* /poweroff : PowerOff all gateway application
-* /{n} : return the services exposed in the port at the {n} position in the index, used by GateWay Port Servers
-* /error : service for returning errors from GateWay Port Servers
-This server require a Token protection defined in configuration
+* /poweroff : PowerOff all gateway Port Servers and the Gateway Application will exit
+* /{n} : return the JSON output of service list, exposed in the Gateway Port Server at the {n} position in the Gateway Port servers Index, used by GateWay Port Servers, when a root call is required
+* /error : service for balancing and shaping errors, required by GateWay Port Servers
+
+*IMPORTANT :*
+_This server requires a Token Protection information, defined in own configuration_
 
 Configuration descriptor (`indexservice.json`) :
 * "enabled": Status of service for Index Server
