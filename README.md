@@ -31,6 +31,14 @@ to the target server/port as required in the original call :
 
 <p align="center"><img width="640" height="480" src="/images/arch2.png" /></p>
 
+According to Secure Configuration we have following communication :
+
+<p align="center"><img width="640" height="480" src="/images/arch3.png" /></p>
+
+In case of unhautorized access, communication will follow these communication steps :
+
+<p align="center"><img width="640" height="480" src="/images/arch4.png" /></p>
+
 ## Configuration
 
 Availale Configurations are :
