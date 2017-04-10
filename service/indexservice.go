@@ -12,6 +12,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"io/ioutil"
+	"crypto/x509"
+	"crypto/tls"
 )
 
 func FilterIndexConfigs(sites []model.Site) []model.Response {
@@ -159,6 +162,15 @@ func GateWayIndexServer(config model.IndexConfig, fileName string, waitGroup *sy
 	}
 	go func(server *http.Server, config model.IndexConfig, waitGroup *sync.WaitGroup) {
 		if config.UseTLS {
+			if config.CACertFile != "" {
+				caCert, _ := ioutil.ReadFile(config.X509CertFile)
+				caCertPool := x509.NewCertPool()
+				caCertPool.AppendCertsFromPEM(caCert)
+				server.TLSConfig = &tls.Config{
+					RootCAs: caCertPool,
+					ClientAuth: tls.RequireAndVerifyClientCert,
+				}
+			}
 			err = server.ListenAndServeTLS(config.X509CertFile, config.X509KeyFile)
 		} else {
 			err = server.ListenAndServe()

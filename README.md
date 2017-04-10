@@ -57,6 +57,7 @@ Configuration descriptor (`indexservice.json`) :
 * "usetokenprotection": Flag defining the user to check in the request HEADs the `X-GATEWAY-TOKEN` tag
 * "securitytoken": Security Token recovered in Head Tag `X-GATEWAY-TOKEN`
 * "usetls": Enable/Disable SSL/TLS configuration for the GateWay Index Server
+* "cacertificatefile": CA Certificate signer of X509 Certificate or empty for self-signed certs 
 * "tlsx509certificatefile": X509 Certificate full qualified file path
 * "tlsx509certificatekeyfile": Certificate Server Key full qualified file path
 
@@ -70,6 +71,7 @@ Example :
   "protocol": "http",
   "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4",
   "usetls": true,
+  "cacertificatefile": "",
   "tlsx509certificatefile": "./data/server.pem",
   "tlsx509certificatekeyfile": "./data/server.key"
 }
@@ -92,6 +94,7 @@ Configuration descriptor for any of the ports (`config.json`) :
 * "usetokenprotection": Flag defining the user to check in the request HEADs the `X-GATEWAY-TOKEN` tag
 * "securitytoken": Security Token recovered in Head Tag `X-GATEWAY-TOKEN`
 * "usetls": Enable/Disable SSL/TLS configuration for the GateWay Port Server
+* "cacertificatefile": CA Certificate signer of X509 Certificate or empty for self-signed certs 
 * "tlsx509certificatefile": X509 Certificate full qualified file path
 * "tlsx509certificatekeyfile": Certificate Server Key full qualified file path
 
@@ -111,6 +114,7 @@ Example :
     "usetokenprotection": false,
     "securitytoken": "",
     "usetls": false,
+    "cacertificatefile": "",
     "tlsx509certificatefile": "",
     "tlsx509certificatekeyfile": ""
 
@@ -129,6 +133,7 @@ Example :
     "usetokenprotection": true,
     "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4",
     "usetls": false,
+    "cacertificatefile": "",
     "tlsx509certificatefile": "",
     "tlsx509certificatekeyfile": ""
   }

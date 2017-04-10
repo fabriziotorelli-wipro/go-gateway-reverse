@@ -12,6 +12,7 @@
     "usetokenprotection": false,
     "securitytoken": "",
     "usetls": true,
+    "cacertificatefile": "",
     "tlsx509certificatefile": "./data/server.pem",
     "tlsx509certificatekeyfile": "./data/server.key"
 
@@ -29,6 +30,7 @@
     "usetokenprotection": true,
     "securitytoken": "J1qK1c18UUGJFAzz9xnH56584l4",
     "usetls": false,
+    "cacertificatefile": "",
     "tlsx509certificatefile": "",
     "tlsx509certificatekeyfile": ""
   }

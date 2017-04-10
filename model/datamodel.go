@@ -46,6 +46,7 @@ type IndexConfig struct {
 	UseToken       bool   `json:"usetokenprotection"`
 	SecurityToken  string `json:"securitytoken"`
 	UseTLS         bool   `json:"usetls"`
+	CACertFile   string `json:"cacertificatefile"`
 	X509CertFile   string `json:"tlsx509certificatefile"`
 	X509KeyFile    string `json:"tlsx509certificatekeyfile"`
 }
@@ -63,6 +64,7 @@ type Configuration struct {
 	UseToken      bool   `json:"usetokenprotection"`
 	SecurityToken string `json:"securitytoken"`
 	UseTLS        bool   `json:"usetls"`
+	CACertFile   string `json:"cacertificatefile"`
 	X509CertFile  string `json:"tlsx509certificatefile"`
 	X509KeyFile   string `json:"tlsx509certificatekeyfile"`
 }

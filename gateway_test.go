@@ -5,7 +5,6 @@ import (
 	//"math/rand"
 	//"os"
 	"testing"
-	"time"
 
 	"encoding/json"
 	"gateway/ifaces"
@@ -13,6 +12,9 @@ import (
 	"gateway/test"
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"crypto/tls"
+	"io/ioutil"
+	"crypto/x509"
 )
 
 var (
@@ -25,6 +27,7 @@ var (
 	}
 	server *http.Server
 	err    error
+	Token  string
 )
 
 func TestInit(t *testing.T) {
@@ -99,7 +102,7 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, "", ports[0].Address)
 	assert.Equal(t, int64(10099), ports[0].Port)
 	assert.Equal(t, "http", ports[0].Protocol)
-	assert.Equal(t, "./test/data.json", ports[0].File)
+	assert.Equal(t, "./test/data2.json", ports[0].File)
 	assert.Equal(t, "", ports[0].User)
 	assert.Equal(t, "", ports[0].Password)
 	assert.Equal(t, false, ports[0].UseToken)
@@ -110,7 +113,7 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, "", ports[1].Address)
 	assert.Equal(t, int64(10100), ports[1].Port)
 	assert.Equal(t, "http", ports[1].Protocol)
-	assert.Equal(t, "./test/data2.json", ports[1].File)
+	assert.Equal(t, "./test/data.json", ports[1].File)
 	assert.Equal(t, "", ports[1].User)
 	assert.Equal(t, "", ports[1].Password)
 	assert.Equal(t, true, ports[1].UseToken)
@@ -118,10 +121,14 @@ func TestLoadPorts(t *testing.T) {
 	assert.Equal(t, "/", ports[1].APIUrl)
 	assert.Equal(t, true, ports[1].Concat)
 	assert.Equal(t, true, ports[1].BeforeApi)
+	Token = ports[1].SecurityToken
 }
 
-func TestGatewayServicePort(t *testing.T) {
-	resp, error1 := http.Get("http://localhost:10099/Site1")
+func TestGatewayServicePortToken(t *testing.T) {
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://localhost:10100/Site1", nil)
+	req.Header.Add("X-GATEWAY-TOKEN", Token)
+	resp, error1 := client.Do(req)
 	assert.Nil(t, error1, "Test Service should be reachable")
 	var respData test.ServerTestHandler
 	err = json.NewDecoder(resp.Body).Decode(&respData)
@@ -132,9 +139,10 @@ func TestGatewayServicePort(t *testing.T) {
 }
 
 func TestGatewayServiceIndex(t *testing.T) {
-	gateway.Start()
-	time.Sleep(5 * time.Second)
-	resp, error1 := http.Get("http://localhost:10099/")
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://localhost:10100/", nil)
+	req.Header.Add("X-GATEWAY-TOKEN", Token)
+	resp, error1 := client.Do(req)
 	assert.Nil(t, error1, "Test Service should be reachable")
 	var respData []model.Response
 	err := json.NewDecoder(resp.Body).Decode(&respData)
@@ -146,6 +154,32 @@ func TestGatewayServiceIndex(t *testing.T) {
 	assert.Equal(t, "json", respData[1].Type)
 	assert.Equal(t, "Site3", respData[2].Name)
 	assert.Equal(t, "json", respData[2].Type)
+}
+
+func TestGatewayServicePortCertificate(t *testing.T) {
+	cert, err := tls.LoadX509KeyPair("./test/server.pem", "./test/server.key")
+	caCert, err := ioutil.ReadFile("./test/server.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: caCertPool,
+				Certificates: []tls.Certificate{cert},
+			},
+		},
+	}
+	
+	resp, error1 := client.Get("https://localhost:10099/Site1")
+	//resp, error1 := http.Get("http://localhost:10099/Site1")
+	println(error1)
+	assert.Nil(t, error1, "Test Service should be reachable")
+	var respData test.ServerTestHandler
+	err = json.NewDecoder(resp.Body).Decode(&respData)
+	resp.Body.Close()
+	assert.Nil(t, err, "Error should be nil")
+	assert.Equal(t, 200, respData.Code)
+	assert.Equal(t, "Test service answer", respData.Message)
 }
 
 func TestEnd(t *testing.T) {
