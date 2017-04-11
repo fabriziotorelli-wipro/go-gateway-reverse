@@ -1,6 +1,11 @@
-# go-gateway-reverse
+<p align="center" style="width: 100%"><img width="200" height="200" src="/images/golang.gif" /></p>
 
-Go-Lang Simple Gateway Reverse Proxy
+# Go Gateway Reverse Proxy
+
+Go-Lang Simple Gateway Reverse Proxy application, allowing to mask server/service reference and defining a streaming on demand. It's Token, TLS protected, however in this stage we recommend to use it in a private network.
+This server is provided of an automatic load balancer for all `Site` name overlapping configurations (Round-Robin). It's provided of customizable modules and expose an index server API to manage and provide metadata information.
+No road-maps at the moment for security enforcements.
+
 
 ## Goals
 
@@ -12,6 +17,7 @@ Define a simple reverse proxy enabled by reference label and triggering single o
 To compile and run this project you have to check availability of following software:
 * [Go](https://golang.org/dl/) (tested with version 1.8)
 * Any program (curl, wget) or Browser plugin (REST Easy, etc..) to test token http calls in HEAD space 
+
 
 ## Architecture
 
@@ -39,12 +45,14 @@ In case of unhautorized access, communication will follow these communication st
 
 <p align="center"><img width="640" height="480" src="/images/arch5.png" /></p>
 
+
 ## Configuration
 
 Availale Configurations are :
 * serverindex.json defining main information to open an indexing service available to the other service to require root meta-data
 * config.json with multiple services on multiple ports available for the gateway protocol, defining each of them a datafile
 * `<datafiles>.json` define streaming information and overriding of default Gateway Service Ports, to allow multiple APIs provisioning on a single Gateway Port
+
 
 ## Index Server
 
@@ -84,6 +92,7 @@ Example :
   "tlsx509certificatekeyfile": "./data/server.key"
 }
 ```
+
 
 ## Port Servers
 
@@ -148,6 +157,7 @@ Example :
 ]
 ```
 
+
 ## Port Servers Data Files
 
 GateWay Port Server Service file contains information about upstreaming and reverse proxy rules, shading the real addresses.
@@ -205,6 +215,7 @@ Go in you `GOPATH\src` folder and type :
 
 Project GO package folder name is `gateway`.
 
+
 ## Build
 
 It's present a make file that returns an help on the call :
@@ -230,7 +241,7 @@ Alternatively you can call following commands :
  * `go run main.go` to execute the project
  * `go build --buildmode exe .` to create an executable command
 
- 
+
 ## Further test 
 
 You can access information on GateWay Token protected ports using following command :
@@ -245,7 +256,9 @@ curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X POST 
 curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X GET http://<HOST>:<PORT>/<MASKED-SERVICE>
 ```
 
+
 ## TLS Cerificate test
+
 
 ##### Generate private key (.key)
 
@@ -257,6 +270,7 @@ openssl genrsa -out server.key 2048
 # List ECDSA the supported curves (openssl ecparam -list_curves)
 openssl ecparam -genkey -name secp384r1 -out server.key
 ```
+
 
 ##### Generation of self-signed(x509) public key (PEM-encodings `.pem`|`.crt`) based on the private (`.key`)
 
@@ -272,9 +286,25 @@ Here one example of call :
 curl -k https://<gw-port-address>:<gw-port-number>/ -v –key /path/to/server.key –cert /path/to/server.key https://<gw-port-address>:<gw-port-number>/<gw-port-end-point>
 ```
 
+
 ## Execution
 
-*Coming soon ...*
+The application provides a series of arguments as input:
+* `--help`                   Show the command help
+* `--config-dir`   [path]    Define the default configuration path (we assume as file names : config.json and indexservice.json)
+* `--ports-file` [file path] Alternatively you can define full qualified port services configuration file path
+* `--index-file` [file path] Alternatively you can define full qualified index service configuration file path
+
+The `--config-dir` and `--port-file`, `--index-file` are mutually exclusive options. 
+
+The first one define a folder containing following file:
+* `config.json`        Port Services configuration file
+* `indexservice.json`  Index Service configuration file
+
+The second ones define the port services and index service full qualified files path.
+
+It's possible define multiple OS gateway services, configured on different folder files and reusing if needed Port Data Service Configurations.
+
 
 ## License
 

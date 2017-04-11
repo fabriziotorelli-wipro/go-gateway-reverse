@@ -1,0 +1,14 @@
+[
+  {
+    "site" : "Site1",
+    "address" : "localhost",
+    "port" : 10111,
+    "protocol": "http",
+    "scheme" : "http",
+    "type" : "json",
+    "override": false,
+    "apiuri": "/",
+    "concatenatepath": false,
+    "concatenatebeforeapi": false
+  }
+]

@@ -77,7 +77,8 @@ func CreateGateway(configFile string, indexFile string) ifaces.GateWay {
 func PrintHelp() {
 	println("gateway [OPTIONS]")
 	println("OPTIONS")
-	println("--config-dir   [path]      Define the default configuration path (we assume as file names : config.json and indexservice.json)")
+	println("--help                   Show the command help")
+	println("--config-dir   [path]    Define the default configuration path (we assume as file names : config.json and indexservice.json)")
 	println("--ports-file [file path] Alternatively you can define full qualified port services configuration file path")
 	println("--index-file [file path] Alternatively you can define full qualified index service configuration file path")
 	os.Exit(0)

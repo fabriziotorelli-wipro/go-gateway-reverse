@@ -32,5 +32,22 @@
     "cacertificatefile": "",
     "tlsx509certificatefile": "",
     "tlsx509certificatekeyfile": ""
+  },
+  {
+    "ipaddress": "",
+    "port":10101,
+    "apiurl": "/",
+    "concatenate": true,
+    "beforeapi": true,
+    "servicefile": "./test/data3.json",
+    "protocol": "http",
+    "user": "",
+    "password": "",
+    "usetokenprotection": false,
+    "securitytoken": "",
+    "usetls": false,
+    "cacertificatefile": "",
+    "tlsx509certificatefile": "",
+    "tlsx509certificatekeyfile": ""
   }
 ]
