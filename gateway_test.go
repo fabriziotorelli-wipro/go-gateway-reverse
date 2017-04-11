@@ -183,8 +183,10 @@ func TestGatewayServicePortCertificate(t *testing.T) {
 }
 
 func TestEnd(t *testing.T) {
-	server.Close()
-	gateway.Stop()
+	go func () {
+		server.Close()
+		gateway.Stop()
+	}()
 }
 
 //func getFileAsString(path string) string {
