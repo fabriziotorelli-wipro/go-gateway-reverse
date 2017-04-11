@@ -74,16 +74,54 @@ func CreateGateway(configFile string, indexFile string) ifaces.GateWay {
 	return &gateway
 }
 
+func PrintHelp() {
+	println("gateway [OPTIONS]")
+	println("OPTIONS")
+	println("--config-dir   [path]      Define the default configuration path (we assume as file names : config.json and indexservice.json)")
+	println("--ports-file [file path] Alternatively you can define full qualified port services configuration file path")
+	println("--index-file [file path] Alternatively you can define full qualified index service configuration file path")
+	os.Exit(0)
+}
+
 func main() {
-	file := string("")
-	indexFile := string("")
-	if len(os.Args) > 1 {
-		file = os.Args[1]
+	Dir := string("")
+	File := string("")
+	IndexFile := string("")
+	for index, arg := range os.Args {
+		if index % 2 == 1 {
+			switch arg {
+			case "--help":
+				PrintHelp()
+			case "--config-dir":
+				if index + 1 < len(os.Args) {
+					Dir = os.Args[index+1]
+				}
+			case "--ports-file":
+				if index + 1 < len(os.Args) {
+					File = os.Args[index+1]
+				}
+			case "--index-file":
+				if index + 1 < len(os.Args) {
+					File = os.Args[index+1]
+				}
+			}
+		}
 	}
-	if len(os.Args) > 2 {
-		indexFile = os.Args[2]
+	if Dir != "" {
+		if (File != "" || IndexFile != "") {
+			println("Warning: You cannot use config dir with specific config files")
+			PrintHelp()
+		} else {
+			if Dir[len(Dir) - 1] == "/"[0] {
+				Dir = Dir[:len(Dir) - 1]
+			} else if Dir[len(Dir) - 1] == "\\"[0] {
+				Dir = Dir[:len(Dir) - 1]
+			}
+			File = Dir + "/" + "config.json"
+			IndexFile = Dir  + "/" + "indexservice.json"
+		}
 	}
-	gateway := CreateGateway(file, indexFile)
+	gateway := CreateGateway(File, IndexFile)
 	gateway.Start()
 	gateway.Wait()
 
