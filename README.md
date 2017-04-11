@@ -9,7 +9,7 @@ No road-maps at the moment for security enforcements.
 
 ## Goals
 
-Define a simple reverse proxy enabled by reference label and triggering single or load-balanced (simple balancing strategy) gateway to configured services.
+Define a simple reverse proxy enabled by reference label and triggering single or load-balanced (simple balancing strategy) gateway to provided back-end services.
 
 
 ## Pre-requisites
@@ -22,17 +22,23 @@ To compile and run this project you have to check availability of following soft
 ## Architecture
 
 Reverse Proxy, acquiring an URL defined as :
-`<protocol>://<host>:<service-operating-port>/label/rest/.../...?query=....&....`
-The gateway search in the configuration of the service the resource and accorrding to site policy or balanced site policy to define the current reverse upstreaming chanell to :
-`<real-protocol>://<real-host>:<real-port>/api../rest/...?apiQuery...&query...`
+```sh
+<protocol>://<host>:<service-operating-port>/label/rest/.../...?query=....&....
+```
+The gateway search in the configuration of the service the resource and according to site policy or balanced site policy to define the current reverse upstreaming channel to :
+```sh
+<real-protocol>://<real-host>:<real-port>/api../rest/...?apiQuery...&query...
+```
 or
-`<real-protocol>://<real-host>:<real-port>/rest/.../api..?apiQuery...&query...`
+```sh
+<real-protocol>://<real-host>:<real-port>/rest/.../api..?apiQuery...&query...`
+```
 
 This allows to retain the original verb and method, challenging a channel to the real service with the service specified policies
 
 <p align="center"><img width="640" height="480" src="/images/arch1.png" /></p>
 
-The single GateWay Port Server manages identifiers that mask the access to the real service and open streaming channels
+The single  Gateway Port Server manages identifiers that mask the access to the real service and open streaming channels
 to the target server/port as required in the original call :
 
 <p align="center"><img width="640" height="480" src="/images/arch2.png" /></p>
@@ -41,14 +47,14 @@ According to Secure Configuration we have following communication steps :
 
 <p align="center"><img width="640" height="480" src="/images/arch3.png" /></p>
 
-In case of unhautorized access, communication will follow these communication steps :
+In case of unhautorized access, communication will follow these steps :
 
 <p align="center"><img width="640" height="480" src="/images/arch5.png" /></p>
 
 
 ## Configuration
 
-Availale Configurations are :
+Available Configurations are :
 * serverindex.json defining main information to open an indexing service available to the other service to require root meta-data
 * config.json with multiple services on multiple ports available for the gateway protocol, defining each of them a datafile
 * `<datafiles>.json` define streaming information and overriding of default Gateway Service Ports, to allow multiple APIs provisioning on a single Gateway Port
@@ -58,27 +64,27 @@ Availale Configurations are :
 
 Server Index file configure a service JSON http server that expose following end-point
 * /poweroff : PowerOff all gateway Port Servers and the Gateway Application will exit
-* /{n} : return the JSON output of service list, exposed in the Gateway Port Server at the {n} position in the Gateway Port servers Index, used by GateWay Port Servers, when a root call is required
-* /error : service for balancing and shaping errors, required by GateWay Port Servers
+* /{n} : return the JSON output of service list, exposed in the Gateway Port Server at the {n} position in the Gateway Port servers Index, used by  Gateway Port Servers, when a root call is required
+* /error : service for balancing and shaping errors, required by  Gateway Port Servers
 
 *IMPORTANT :*
-_This server requires a Token Protection information, defined in own configuration_
+_This server allows a TLS/Token Protection protocol, defined in own configuration_
 
 Configuration descriptor (`indexservice.json`) :
 * "enabled": Status of service for Index Server
 * "ipaddress": Host Name/IP Address used by Index Server or "" (for any address)
-* "serviceaddress": Address where GateWay Ports should recover information or "localhost"
+* "serviceaddress": Address where  Gateway Ports should recover information or "localhost"
 * "port": Port Number used by Index Server (integer)
-* "protocol": Protocol used for connecting the Index Server by GateWay Ports
+* "protocol": Protocol used for connecting the Index Server by  Gateway Ports
 * "usetokenprotection": Flag defining the user to check in the request HEADs the `X-GATEWAY-TOKEN` tag
 * "securitytoken": Security Token recovered in Head Tag `X-GATEWAY-TOKEN`
-* "usetls": Enable/Disable SSL/TLS configuration for the GateWay Index Server
+* "usetls": Enable/Disable SSL/TLS configuration for the  Gateway Index Server
 * "cacertificatefile": CA Certificate signer of X509 Certificate or empty for self-signed certs 
 * "tlsx509certificatefile": X509 Certificate full qualified file path
 * "tlsx509certificatekeyfile": Certificate Server Key full qualified file path
 
 Example :
-```
+```javascript
 {
   "enabled": true,
   "ipaddress": "",
@@ -96,7 +102,11 @@ Example :
 
 ## Port Servers
 
-GateWay Port Server List file configure a set of ports that consumes services defined in a specific data file.
+ Gateway Port Server List file configure a set of ports that consumes services defined in a specific data file.
+
+*IMPORTANT :*
+_This server allows a TLS/Token Protection protocol, defined in own configuration_
+
 
 Configuration descriptor for any of the ports (`config.json`) :
 * "ipaddress": Host Name/IP Address used by Gateway Port Server or "" (for any address)
@@ -105,18 +115,18 @@ Configuration descriptor for any of the ports (`config.json`) :
 * "concatenate": Flag defining if server should concatenate API and Call path and Query parameters 
 * "beforeapi": Concatenate call path and Query parameters before the API URL data
 * "servicefile": Full qualified path of JSON file containing Gateway Port Service data
-* "protocol": Protocol used for connecting the GateWay Port Services
+* "protocol": Protocol used for connecting the  Gateway Port Services
 * "user": Authentication User Name / Code (not yet implemented)
 * "password": Authentication User Password / Token (not yet implemented)
 * "usetokenprotection": Flag defining the user to check in the request HEADs the `X-GATEWAY-TOKEN` tag
 * "securitytoken": Security Token recovered in Head Tag `X-GATEWAY-TOKEN`
-* "usetls": Enable/Disable SSL/TLS configuration for the GateWay Port Server
+* "usetls": Enable/Disable SSL/TLS configuration for the  Gateway Port Server
 * "cacertificatefile": CA Certificate signer of X509 Certificate or empty for self-signed certs 
 * "tlsx509certificatefile": X509 Certificate full qualified file path
 * "tlsx509certificatekeyfile": Certificate Server Key full qualified file path
 
 Example :
-```
+```javascript
 [
   {
     "ipaddress": "",
@@ -160,22 +170,22 @@ Example :
 
 ## Port Servers Data Files
 
-GateWay Port Server Service file contains information about upstreaming and reverse proxy rules, shading the real addresses.
+ Gateway Port Server Service file contains information about upstreaming and reverse proxy rules, shading the real services.
 
-Configuration descriptor for any of the port services (`<data-file>.json` contained in the `config.json` single service `servicefile` JSON element) :
+Configuration descriptor for any of the port services (`<data-file>.json` part of one Port Service in the `config.json`, in the `servicefile` JSON element) :
 * "site" : Desired Label for masking the call to the server (overlapping of the label causes Load Balancing)
 * "address" : Host Name/IP Address used by the reverse proxy engine to connect the real server...
 * "port" : Port used by the reverse proxy engine to connect the real server...
 * "protocol": URL protocol used in the merging of the real server proxying
 * "scheme" : URL schema used in the URL element, merging of the real server proxying
 * "type" : Informative data
-* "override": Flag that define if following information overrides the GateWay Port Configuration items
+* "override": Flag that define if following information overrides the  Gateway Port Configuration items
 * "apiuri": API URL Base Address
 * "concatenatepath": Concatenate call path and Query parameters before the API URL data
 * "concatenatebeforeapi": Concatenate call path and Query parameters before the API URL data
 
 Example :
-```
+```javascript
 [
   {
     "site" : "Jenkins1",
@@ -208,7 +218,7 @@ Example :
 ## Checkout and test this repository
 
 Go in you `GOPATH\src` folder and type :
-```
+```sh
  git clone https://github.com/fabriziotorelli-wipro/go-gateway-reverse.git gateway
 
 ```
@@ -220,11 +230,11 @@ Project GO package folder name is `gateway`.
 
 It's present a make file that returns an help on the call :
 
-```
+```sh
 make
 ```
-provided help returns :
-```
+Provided `Makefile` help returns following options :
+```sh
 make [all|test|build|exe|run|clean|install]
 all: test build exe run
 test: run unit test
@@ -235,7 +245,7 @@ run: exec the module code
 install: install the module in go libs
 ```
 
-Alternatively you can call following commands :
+Alternatively you can execute following commands :
  * `go build .` to build the project
  * `go test` to run unit and integration test on the project
  * `go run main.go` to execute the project
@@ -244,20 +254,20 @@ Alternatively you can call following commands :
 
 ## Further test 
 
-You can access information on GateWay Token protected ports using following command :
+You can access information on  Gateway Token protected ports using following command :
 
 * POST:
-```
+```sh
 curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X POST http://<HOST>:<PORT>/<MASKED-SERVICE> -H Content-Type: application/json -d ''
 ```
 
 * GET:
-```
+```sh
 curl -i -H Accept:application/json -H X-GATEWAY-TOKEN:<YOUR-TOKEN-HERE> -X GET http://<HOST>:<PORT>/<MASKED-SERVICE>
 ```
 
 
-## TLS Cerificate test
+## TLS Certificate test
 
 
 ##### Generate private key (.key)
