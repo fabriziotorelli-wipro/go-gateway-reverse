@@ -1,4 +1,4 @@
-<p align="center" style="width: 100%"><img width="200" height="200" src="/images/golang.gif" /></p>
+<p align="center" style="width: 100%"><img width="200" height="200" src="/images/golang.png" /></p>
 
 # Go Gateway Reverse Proxy
 
