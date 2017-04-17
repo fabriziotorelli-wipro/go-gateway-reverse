@@ -235,8 +235,9 @@ make
 ```
 Provided `Makefile` help returns following options :
 ```sh
-make [all|test|build|exe|run|clean|install]
+make [all|init|test|build|exe|run|clean|install]
 all: test build exe run
+init: get required external packages
 test: run unit test
 build: build the module
 exe: make executable for the module
@@ -246,6 +247,7 @@ install: install the module in go libs
 ```
 
 Alternatively you can execute following commands :
+ * `go get github.com/stretchr/testify` to download unit test external package
  * `go build .` to build the project
  * `go test` to run unit and integration test on the project
  * `go run main.go` to execute the project
